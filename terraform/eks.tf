@@ -40,6 +40,7 @@ resource "aws_eks_cluster" "dbk8s" {
   name = "dbk8s"
   version = "1.17"
   role_arn = aws_iam_role.dbk8s.arn
+  tags = {app: "k8s"}
   vpc_config {
     subnet_ids = ["subnet-008790b54ad7f885c", "subnet-07c8428ac57a078d5", "subnet-093c9188148802e13"]
     endpoint_private_access = true
