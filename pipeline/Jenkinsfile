@@ -1,0 +1,42 @@
+pipeline {
+  agent any
+  parameters {
+      booleanParam(name: 'TERRAFORM_PLAN', defaultValue: true, description: 'Plan terraform')
+      booleanParam(name: 'TERRAFORM_BUILD', defaultValue: false, description: 'Build terraform')
+      booleanParam(name: 'TERRAFORM_DESTROY', defaultValue: false, description: 'Destroy terraform')
+  }
+
+  stages {
+
+    stage('Plan Terraform') {
+        when {
+            expression {params.TERRAFORM_PLAN}
+        }
+        steps {
+        sh '''
+        cd terraform && terraform init && terraform plan
+        '''
+        }
+    }
+    stage('Build PostgreSQL Server') {
+        when {
+            expression {params.TERRAFORM_BUILD}
+        }
+      steps {
+        sh '''
+           cd terraform && terraform init && terraform apply -auto-approve
+           '''
+      }
+    }
+
+    stage('Destroy PostgreSQL Server') {
+      when {
+          expression {params.TERRAFORM_DESTROY}
+      }
+      steps {
+        sh 'cd terraform && terraform init && terraform destroy -auto-approve'
+      }
+    }
+
+  }
+}
