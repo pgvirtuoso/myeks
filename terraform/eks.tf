@@ -95,4 +95,5 @@ resource "aws_eks_node_group" "dbk8s-private" {
     ec2_ssh_key = "main"
     source_security_group_ids = ["sg-08bab77121941deea"]
   }
+  tags = {app: "k8s"}
 }
