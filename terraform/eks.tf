@@ -5,6 +5,9 @@ terraform {
     region = "us-east-1"
   }
 }
+provider "aws" {
+  region = "us-east-1"
+}
 resource "aws_iam_role" "dbk8s" {
   name = "eks-cluster-dbk8s"
 
