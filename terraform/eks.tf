@@ -48,3 +48,48 @@ resource "aws_eks_cluster" "dbk8s" {
     security_group_ids = ["sg-08bab77121941deea"]
   }
 }
+resource "aws_iam_role" "dbk8s-private" {
+  name = "eks-node-dbk8s-private"
+
+  assume_role_policy = jsonencode({
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "example-AmazonEKSWorkerNodePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.dbk8s-private.name
+}
+
+resource "aws_iam_role_policy_attachment" "example-AmazonEKS_CNI_Policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.dbk8s-private.name
+}
+
+resource "aws_iam_role_policy_attachment" "example-AmazonEC2ContainerRegistryReadOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.dbk8s-private.name
+}
+
+resource "aws_eks_node_group" "dbk8s-private" {
+  cluster_name = "dbk8s"
+  node_group_name = "dbk8s-private"
+  node_role_arn = aws_iam_role.dbk8s-private.arn
+  subnet_ids = ["subnet-07c8428ac57a078d5", "subnet-093c9188148802e13"]
+  scaling_config {
+    desired_size = 3
+    max_size = 5
+    min_size = 1
+  }
+  labels = {"network": "private"}
+  version = "1.17"
+  instance_types = ["m5a.large"]
+  remote_access {ec2_ssh_key = "main", source_security_group_ids = ["sg-08bab77121941deea"]}
+}
