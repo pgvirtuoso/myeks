@@ -92,7 +92,7 @@ resource "aws_eks_node_group" "dbk8s-private" {
   version = "1.17"
   instance_types = ["m5a.large"]
   remote_access {
-    ec2_ssh_key = "main",
+    ec2_ssh_key = "main"
     source_security_group_ids = ["sg-08bab77121941deea"]
   }
 }
